@@ -1,0 +1,33 @@
+# Q-AgeNet — Dependencies
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+qagenet_env/
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Output files (keep JSON results for Vercel static)
+*.png
+*.log
+
+# Node (if any)
+node_modules/

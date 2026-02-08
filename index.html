@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q-AgeNet | Quantum Circuit Aging Detector</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛️</text></svg>">
+    <link rel="stylesheet" href="static/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="quantum-spinner">
+                <div class="orbit orbit-1"><div class="electron"></div></div>
+                <div class="orbit orbit-2"><div class="electron"></div></div>
+                <div class="orbit orbit-3"><div class="electron"></div></div>
+                <div class="nucleus"></div>
+            </div>
+            <h2>Running Quantum Simulation</h2>
+            <p id="loadingStatus">Initializing quantum circuits...</p>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 48 48" width="48" height="48">
+                            <circle cx="24" cy="24" r="4" fill="#00d4ff"/>
+                            <ellipse cx="24" cy="24" rx="20" ry="8" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.6"/>
+                            <ellipse cx="24" cy="24" rx="20" ry="8" fill="none" stroke="#7c3aed" stroke-width="1.5" opacity="0.6" transform="rotate(60 24 24)"/>
+                            <ellipse cx="24" cy="24" rx="20" ry="8" fill="none" stroke="#3b82f6" stroke-width="1.5" opacity="0.6" transform="rotate(120 24 24)"/>
+                            <circle cx="24" cy="16" r="2" fill="#00d4ff" class="pulse-dot"/>
+                            <circle cx="31" cy="28" r="2" fill="#7c3aed" class="pulse-dot"/>
+                            <circle cx="17" cy="28" r="2" fill="#3b82f6" class="pulse-dot"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <h1>Q-AgeNet</h1>
+                        <span class="logo-subtitle">Quantum Circuit Aging Detection System</span>
+                    </div>
+                </div>
+                <span class="version-badge">v4.0</span>
+            </div>
+            <div class="header-right">
+                <div class="header-status" id="connectionStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Connecting...</span>
+                </div>
+                <button class="btn btn-secondary" id="loadResultsBtn" title="Load pre-computed results">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Load Results</span>
+                </button>
+                <button class="btn btn-primary" id="runSimBtn" title="Run new quantum simulation">
+                    <i class="fas fa-play"></i>
+                    <span>Run Simulation</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Status Bar -->
+        <div class="status-bar" id="statusBar">
+            <div class="status-bar-left">
+                <i class="fas fa-info-circle"></i>
+                <span id="statusMessage">Loading dashboard...</span>
+            </div>
+            <div class="status-bar-right">
+                <span class="status-tag" id="tagQubits"><i class="fas fa-atom"></i> -- Qubits</span>
+                <span class="status-tag" id="tagExecutions"><i class="fas fa-redo"></i> -- Executions</span>
+                <span class="status-tag" id="tagShots"><i class="fas fa-bullseye"></i> -- Shots</span>
+                <span class="status-tag" id="tagTimestamp"><i class="fas fa-clock"></i> --</span>
+            </div>
+        </div>
+
+        <!-- Metrics Cards -->
+        <section class="metrics-section">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-bar"></i> Key Performance Metrics</h2>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card" data-metric="baseline">
+                    <div class="metric-icon" style="--accent: #10b981;">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div class="metric-body">
+                        <span class="metric-label">Baseline Fidelity</span>
+                        <span class="metric-value" id="metricBaseline">--</span>
+                        <span class="metric-sub">Initial circuit performance</span>
+                    </div>
+                </div>
+                <div class="metric-card" data-metric="final">
+                    <div class="metric-icon" style="--accent: #ef4444;">
+                        <i class="fas fa-heart-crack"></i>
+                    </div>
+                    <div class="metric-body">
+                        <span class="metric-label">Final Fidelity</span>
+                        <span class="metric-value" id="metricFinal">--</span>
+                        <span class="metric-sub">After full aging</span>
+                    </div>
+                </div>
+                <div class="metric-card" data-metric="decay">
+                    <div class="metric-icon" style="--accent: #f59e0b;">
+                        <i class="fas fa-arrow-trend-down"></i>
+                    </div>
+                    <div class="metric-body">
+                        <span class="metric-label">Fidelity Decay</span>
+                        <span class="metric-value" id="metricDecay">--</span>
+                        <span class="metric-sub">Performance degradation</span>
+                    </div>
+                </div>
+                <div class="metric-card" data-metric="accuracy">
+                    <div class="metric-icon" style="--accent: #3b82f6;">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <div class="metric-body">
+                        <span class="metric-label">Detection Accuracy</span>
+                        <span class="metric-value" id="metricAccuracy">--</span>
+                        <span class="metric-sub">Late-stage detection</span>
+                    </div>
+                </div>
+                <div class="metric-card" data-metric="fp">
+                    <div class="metric-icon" style="--accent: #8b5cf6;">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="metric-body">
+                        <span class="metric-label">False Positive Rate</span>
+                        <span class="metric-value" id="metricFP">--</span>
+                        <span class="metric-sub">Early stage errors</span>
+                    </div>
+                </div>
+                <div class="metric-card" data-metric="onset">
+                    <div class="metric-icon" style="--accent: #ec4899;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="metric-body">
+                        <span class="metric-label">Aging Onset</span>
+                        <span class="metric-value" id="metricOnset">--</span>
+                        <span class="metric-sub">First detection point</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-line"></i> Time-Series Analysis</h2>
+                <div class="chart-controls">
+                    <button class="chart-ctrl-btn active" data-view="all">All Charts</button>
+                    <button class="chart-ctrl-btn" data-view="fidelity">Fidelity</button>
+                    <button class="chart-ctrl-btn" data-view="cai">CAI</button>
+                    <button class="chart-ctrl-btn" data-view="entropy">Entropy</button>
+                </div>
+            </div>
+            <div class="charts-grid">
+                <!-- Fidelity Decay Chart -->
+                <div class="chart-card" data-chart="fidelity">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-wave-square"></i> Fidelity Decay Over Time</h3>
+                        <span class="chart-badge badge-critical">Critical Metric</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="fidelityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- CAI Evolution Chart -->
+                <div class="chart-card" data-chart="cai">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-area"></i> Circuit Aging Index (CAI)</h3>
+                        <span class="chart-badge badge-warning">Aging Indicator</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="caiChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Entropy Chart -->
+                <div class="chart-card" data-chart="entropy">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-temperature-high"></i> Entropy Growth (Decoherence)</h3>
+                        <span class="chart-badge badge-info">Noise Metric</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="entropyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Detection Timeline -->
+                <div class="chart-card" data-chart="fidelity">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-timeline"></i> Aging Detection Timeline</h3>
+                        <span class="chart-badge badge-success">Detection</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Correlation Chart -->
+                <div class="chart-card" data-chart="cai">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-braille"></i> CAI vs Fidelity Correlation</h3>
+                        <span class="chart-badge badge-info">Scatter Analysis</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="correlationChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Distribution Chart -->
+                <div class="chart-card" data-chart="fidelity">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-column"></i> Fidelity Distribution</h3>
+                        <span class="chart-badge badge-warning">Histogram</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analysis Summary -->
+        <section class="summary-section">
+            <div class="section-header">
+                <h2><i class="fas fa-clipboard-check"></i> Analysis Summary</h2>
+            </div>
+            <div class="summary-grid">
+                <div class="summary-card verdict-card" id="verdictCard">
+                    <div class="verdict-icon">
+                        <i class="fas fa-circle-check" id="verdictIcon"></i>
+                    </div>
+                    <h3 id="verdictTitle">Awaiting Data</h3>
+                    <p id="verdictText">Load results or run a simulation to see the analysis verdict.</p>
+                    <div class="verdict-score">
+                        <span class="score-label">Overall Score</span>
+                        <div class="score-ring">
+                            <svg viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                                <circle cx="60" cy="60" r="52" fill="none" stroke="url(#scoreGradient)" stroke-width="8"
+                                    stroke-dasharray="327" stroke-dashoffset="327" stroke-linecap="round"
+                                    id="scoreCircle" transform="rotate(-90 60 60)"/>
+                                <defs>
+                                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#00d4ff"/>
+                                        <stop offset="100%" stop-color="#7c3aed"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <span class="score-value" id="scoreValue">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-card criteria-card">
+                    <h3><i class="fas fa-list-check"></i> Success Criteria</h3>
+                    <div class="criteria-list" id="criteriaList">
+                        <div class="criteria-item pending">
+                            <i class="fas fa-circle-dot"></i>
+                            <span>Baseline Fidelity ≥ 0.85</span>
+                            <span class="criteria-status" id="critBaseline">--</span>
+                        </div>
+                        <div class="criteria-item pending">
+                            <i class="fas fa-circle-dot"></i>
+                            <span>Fidelity Decay &gt; 8%</span>
+                            <span class="criteria-status" id="critDecay">--</span>
+                        </div>
+                        <div class="criteria-item pending">
+                            <i class="fas fa-circle-dot"></i>
+                            <span>Detection Accuracy ≥ 70%</span>
+                            <span class="criteria-status" id="critAccuracy">--</span>
+                        </div>
+                        <div class="criteria-item pending">
+                            <i class="fas fa-circle-dot"></i>
+                            <span>False Positive Rate &lt; 30%</span>
+                            <span class="criteria-status" id="critFP">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-card details-card">
+                    <h3><i class="fas fa-microscope"></i> Detailed Metrics</h3>
+                    <div class="details-table">
+                        <div class="detail-row">
+                            <span class="detail-label">Entropy (Start → End)</span>
+                            <span class="detail-value" id="detailEntropy">-- → --</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">CAI Average</span>
+                            <span class="detail-value" id="detailCAI">--</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">CAI Maximum</span>
+                            <span class="detail-value" id="detailCAIMax">--</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Aged Executions</span>
+                            <span class="detail-value" id="detailAged">-- / --</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Fidelity Preservation</span>
+                            <span class="detail-value" id="detailPreservation">--%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration Panel -->
+        <section class="config-section" id="configPanel" style="display:none;">
+            <div class="section-header">
+                <h2><i class="fas fa-sliders"></i> Simulation Configuration</h2>
+                <button class="btn btn-ghost" id="closeConfigBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="config-grid">
+                <div class="config-field">
+                    <label for="cfgQubits">Number of Qubits</label>
+                    <input type="number" id="cfgQubits" value="3" min="2" max="8">
+                    <span class="config-hint">GHZ state qubits (2-8)</span>
+                </div>
+                <div class="config-field">
+                    <label for="cfgExecutions">Total Executions</label>
+                    <input type="number" id="cfgExecutions" value="150" min="50" max="500" step="10">
+                    <span class="config-hint">Simulation iterations (50-500)</span>
+                </div>
+                <div class="config-field">
+                    <label for="cfgShots">Shots per Execution</label>
+                    <input type="number" id="cfgShots" value="2048" min="256" max="8192" step="256">
+                    <span class="config-hint">Measurement repetitions (256-8192)</span>
+                </div>
+                <div class="config-actions">
+                    <button class="btn btn-primary btn-lg" id="startSimBtn">
+                        <i class="fas fa-rocket"></i> Start Simulation
+                    </button>
+                    <p class="config-note">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Requires local Flask server with Qiskit installed. Typical runtime: 2-5 minutes.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-left">
+                <span>Q-AgeNet &copy; 2026 — Quantum Circuit Aging Detection System</span>
+            </div>
+            <div class="footer-center">
+                <span>Built with Qiskit &bull; Chart.js &bull; Flask</span>
+            </div>
+            <div class="footer-right">
+                <a href="https://github.com" target="_blank" class="footer-link">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="static/js/app.js"></script>
+</body>
+</html>

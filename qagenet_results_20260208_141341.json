@@ -1,0 +1,41 @@
+{
+  "timestamp": "20260208_141341",
+  "configuration": {
+    "num_qubits": 3,
+    "num_executions": 5,
+    "shots": 256,
+    "burn_in": 20,
+    "smooth_window": 5
+  },
+  "metrics": {
+    "baseline_fidelity": 0.98828125,
+    "final_fidelity": 0.98828125,
+    "fidelity_decay_percent": 0.0,
+    "detection_accuracy": 0.0,
+    "false_positive_rate": 0.0,
+    "first_aging_execution": null
+  },
+  "time_series": {
+    "fidelities": [
+      0.98828125,
+      0.97265625,
+      0.984375,
+      0.984375,
+      0.98828125
+    ],
+    "cai_smoothed": [
+      2.812638509973844,
+      3.370518738426127,
+      3.282392550915166,
+      3.2509006629787063,
+      3.1814925115991315
+    ],
+    "entropy_values": [
+      1.0840536299869217,
+      1.2039130251058716,
+      1.1067159212799558,
+      1.123524999584663,
+      1.096330994707083
+    ]
+  }
+}

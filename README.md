@@ -35,33 +35,6 @@ Navigate to **http://localhost:5000**
 
 The dashboard will automatically load pre-computed results. Click **"Run Simulation"** to execute
 a fresh quantum aging experiment (requires Qiskit + qiskit-aer).
-
----
-
-## 🌐 Deploy to Vercel
-
-### 1. Push to GitHub
-```bash
-git init
-git add .
-git commit -m "Q-AgeNet: Quantum Circuit Aging Detector"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/qagenet.git
-git push -u origin main
-```
-
-### 2. Deploy on Vercel
-1. Go to [vercel.com](https://vercel.com) and sign in with GitHub
-2. Click **"Add New Project"**
-3. Import your `qagenet` repository
-4. Framework Preset: **Other**
-5. Click **Deploy**
-
-The static dashboard will be live at `https://your-project.vercel.app` with pre-computed results.
-
-> **Note:** The "Run Simulation" feature requires a local Flask server with Qiskit installed.
-> On Vercel, the dashboard displays pre-computed results from the JSON data file.
-
 ---
 
 ## 📊 Features

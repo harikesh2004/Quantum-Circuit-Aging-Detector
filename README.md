@@ -78,6 +78,19 @@ QC-2/
 
 ---
 
-## 📜 License
+## License
 
-MIT License — Built for quantum computing research.
+This project is licensed under the MIT License.
+
+Copyright (c) 2026 Harikesh A
+
+See the [LICENSE] file for the full license text.
+
+## Citation / Attribution
+
+If you use this project, please cite or attribute:
+
+**Harikesh A — Quantum Circuit Aging Detector**
+
+Repository:
+https://github.com/harikesh2004/Quantum-Circuit-Aging-Detector.
